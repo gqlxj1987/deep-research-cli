@@ -11,7 +11,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "deep-research=deep_research.cli:main",
+            "deep-research=deep_research.cli.main:main",
         ],
     },
     author="Xiaowen.Z",
