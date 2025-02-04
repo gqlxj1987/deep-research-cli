@@ -1,19 +1,7 @@
 """Utility module for Tavily search API interactions"""
 
-import os
 from typing import Optional, Dict, Any, List
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
-
-class SearchConfig:
-    """Configuration class for Tavily Search API"""
-    def __init__(self):
-        self.api_key = os.getenv('TAVILY_API_KEY')
-        
-        if not self.api_key:
-            raise ValueError('TAVILY_API_KEY environment variable is not set')
+from deep_research.core.config import SearchConfig
 
 class SearchClient:
     """Client for interacting with Tavily Search API"""

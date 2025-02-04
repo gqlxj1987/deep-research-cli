@@ -11,7 +11,6 @@ class Config:
     """Configuration class for model settings"""
     SMART_MODEL = "deepseek/deepseek-r1-distill-llama-70b"
     NORMAL_MODEL = "deepseek/deepseek-r1-distill-llama-70b"
-    TAVILY_API_KEY = ""
 
 class LLMConfig:
     """Configuration class for LLM models"""
@@ -23,3 +22,10 @@ class LLMConfig:
 
         if not self.api_key:
             raise ValueError('OPENAI_KEY environment variable is not set')
+
+class SearchConfig:
+    """Configuration class for Tavily Search API"""
+    def __init__(self):
+        self.api_key = os.getenv('TAVILY_API_KEY')
+        if not self.api_key:
+            raise ValueError('TAVILY_API_KEY environment variable is not set')
