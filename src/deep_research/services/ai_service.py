@@ -58,10 +58,28 @@ class LLMClient:
             **kwargs
         )
         content = response.choices[0].message.content
+        print("=========== LLM Response:")
+        print(content)
+        
+        # Try to find and extract JSON content from the response
         try:
+            # First try direct JSON parsing
             return json.loads(content)
         except json.JSONDecodeError:
-            return {"response": content}
+            # If direct parsing fails, try to find JSON-like content
+            import re
+            json_pattern = r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}'
+            matches = re.finditer(json_pattern, content)
+            
+            # Try each potential JSON match
+            for match in matches:
+                try:
+                    return json.loads(match.group())
+                except json.JSONDecodeError:
+                    continue
+            
+            # If no valid JSON found, raise an error
+            raise ValueError("No valid JSON found in the response")
 
     def smart_completion(
         self,

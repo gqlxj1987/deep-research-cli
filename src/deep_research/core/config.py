@@ -9,7 +9,7 @@ load_dotenv()
 
 class Config:
     """Configuration class for model settings"""
-    SMART_MODEL = "deepseek/deepseek-r1-distill-llama-70b"
+    SMART_MODEL = "deepseek/deepseek-r1:free"
     NORMAL_MODEL = "deepseek/deepseek-r1-distill-llama-70b"
 
 class LLMConfig:

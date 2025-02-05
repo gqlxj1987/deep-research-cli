@@ -2,11 +2,13 @@
 
 from typing import Optional, Dict, Any, List
 from deep_research.core.config import SearchConfig
+from deep_research.services.search_template import SearchTemplate
 
 class SearchClient:
     """Client for interacting with Tavily Search API"""
-    def __init__(self, config: Optional[SearchConfig] = None):
+    def __init__(self, config: Optional[SearchConfig] = None, template_dir: Optional[str] = None):
         self.config = config or SearchConfig()
+        self.template = SearchTemplate()
         
         try:
             from tavily import TavilyClient
@@ -16,6 +18,30 @@ class SearchClient:
                 'Tavily package is not installed. '
                 'Please install it with: pip install tavily-python'
             )
+    
+    def search_with_template(
+        self,
+        query: str,
+        template_name: str,
+        **override_params: Any
+    ) -> Dict[str, Any]:
+        """Perform a search using a parameter template
+
+        Args:
+            query: The search query string
+            template_name: Name of the template to use
+            **override_params: Parameters to override from the template
+
+        Returns:
+            The search results as a dictionary
+        """
+        template_result = self.template.apply_template(template_name, **override_params)
+        if not template_result["success"]:
+            return {"error": f"Template error: {template_result.get('error', 'Unknown error')}"}
+            
+        params = template_result["data"]
+        params["query"] = query  # Ensure query is included in params
+        return self.search(**params)
     
     def search(
         self,
@@ -79,14 +105,12 @@ if __name__ == '__main__':
     # Example usage of SearchClient
     try:
         client = SearchClient()
-        results = client.get_search_results("What is Python programming?")
+        response = client.search_with_template(
+            query="What is DeepSeek R1",
+            template_name="advanced"
+        )
         
-        print("\nSearch Results:")
-        for idx, result in enumerate(results, 1):
-            print(f"\nResult {idx}:")
-            print(f"Title: {result['title']}")
-            print(f"Content: {result['content']}")
-            print(f"URL: {result['url']}")
+        print(response)
             
     except Exception as e:
         print(f"Error: {str(e)}")
