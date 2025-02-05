@@ -72,34 +72,6 @@ class SearchClient:
         except Exception as e:
             return {"error": str(e)}
 
-    def get_search_results(
-        self,
-        query: str,
-        max_results: int = 5
-    ) -> List[Dict[str, str]]:
-        """Get formatted search results
-
-        Args:
-            query: The search query string
-            max_results: Maximum number of results to return
-
-        Returns:
-            List of dictionaries containing title, content, and url for each result
-        """
-        response = self.search(query, max_results=max_results)
-        
-        if "error" in response:
-            return [{"error": response["error"]}]
-            
-        results = []
-        for result in response.get("results", []):
-            results.append({
-                "title": result.get("title", ""),
-                "content": result.get("content", ""),
-                "url": result.get("url", "")
-            })
-        return results
-
 
 if __name__ == '__main__':
     # Example usage of SearchClient

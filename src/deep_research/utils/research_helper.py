@@ -2,6 +2,7 @@
 
 from typing import Dict, Any
 from deep_research.services.ai_service import LLMClient
+from deep_research.services.search_service import SearchClient
 
 def translate_to_english(
     text: str,
@@ -103,15 +104,23 @@ Provide output in pure JSON format.
     #print(response)
     return response
 
-
+def search_advanced(
+    query: str,
+    **kwargs: Any
+) -> Dict[str, Any]:
+    client = SearchClient()
+    response = client.search_with_template(
+        query=query,
+        template_name="advanced"
+    )
+    print(response)
+    return response
 
 
 if __name__ == '__main__':
     # Example usage of translate_to_english
-    re = generate_research_content("What impact of X platform in 2025")
+    re = search_advanced("What impact of X platform in 2025")
     print(re)
 
-    re2 = generate_research_plan(re)
-    print(re2)
 
     
