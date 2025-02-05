@@ -43,6 +43,31 @@ class Research:
         json_plan = generate_research_plan(json_content)
         self.research_plan = json_plan
 
+        self.save()
+
+    def save(self) -> None:
+        """Save research metadata to a JSON file in the output directory
+
+        Creates a new folder with the research ID and saves metadata as JSON.
+        The directory will be created automatically if it doesn't exist.
+        """
+        from deep_research.services.persistence_service import PersistenceClient
+
+        # Prepare metadata
+        metadata = {
+            'topic': self.topic,
+            'research_id': self.research_id,
+            'english_topic': self.english_topic,
+            'research_content': self.research_content,
+            'research_plan': self.research_plan
+        }
+
+        # Save metadata using PersistenceClient
+        persistence_client = PersistenceClient()
+        output_file = f'output/{self.research_id}/{self.research_id}_meta.json'
+        persistence_client.save_json(metadata, output_file)
+
+    
 
     @property
     def id(self) -> str:

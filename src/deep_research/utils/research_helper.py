@@ -103,6 +103,9 @@ Provide output in pure JSON format.
     #print(response)
     return response
 
+
+
+
 if __name__ == '__main__':
     # Example usage of translate_to_english
     re = generate_research_content("What impact of X platform in 2025")

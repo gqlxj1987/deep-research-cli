@@ -2,6 +2,7 @@
 
 import os
 import json
+import json_repair
 from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 
@@ -60,26 +61,12 @@ class LLMClient:
         content = response.choices[0].message.content
         print("=========== LLM Response:")
         print(content)
+        repaired_json = json_repair.loads(content)
+
+        print("=========== Repaired Json:")
+        print(repaired_json)
         
-        # Try to find and extract JSON content from the response
-        try:
-            # First try direct JSON parsing
-            return json.loads(content)
-        except json.JSONDecodeError:
-            # If direct parsing fails, try to find JSON-like content
-            import re
-            json_pattern = r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}'
-            matches = re.finditer(json_pattern, content)
-            
-            # Try each potential JSON match
-            for match in matches:
-                try:
-                    return json.loads(match.group())
-                except json.JSONDecodeError:
-                    continue
-            
-            # If no valid JSON found, raise an error
-            raise ValueError("No valid JSON found in the response")
+        return repaired_json
 
     def smart_completion(
         self,
