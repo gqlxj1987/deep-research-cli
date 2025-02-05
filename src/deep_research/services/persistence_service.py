@@ -47,16 +47,11 @@ class PersistenceClient:
         Returns:
             A dictionary containing either the loaded data or an error message
         """
-        try:
-            with open(os.path.join(self.base_dir, file_path), 'r', encoding='utf-8') as f:
-                data = json.load(f)
-            return {"success": True, "data": data}
-        except FileNotFoundError:
-            return {"success": False, "error": f"File not found: {file_path}"}
-        except json.JSONDecodeError:
-            return {"success": False, "error": f"Invalid JSON format in file: {file_path}"}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+
+        with open(os.path.join(self.base_dir, file_path), 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data
+
 
 
 if __name__ == '__main__':
