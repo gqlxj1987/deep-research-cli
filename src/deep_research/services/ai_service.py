@@ -32,7 +32,7 @@ class LLMClient:
         self,
         messages: list[Dict[str, str]],
         model: Optional[str] = None,
-        response_format: Optional[Dict[str, str]] = {"type": "json_object"},
+        response_format: Optional[Dict[str, str]] = None,
         **kwargs: Any
     ) -> Dict[str, Any]:
         """Send a chat completion request to the OpenAI API
@@ -73,7 +73,7 @@ class LLMClient:
     def smart_completion(
         self,
         messages: list[Dict[str, str]],
-        response_format: Optional[Dict[str, str]] = {"type": "json_object"},
+        response_format: Optional[Dict[str, str]] = None,
         **kwargs: Any
     ) -> Dict[str, Any]:
         """Use the smart model (e.g. GPT-4) for chat completion
@@ -89,7 +89,8 @@ class LLMClient:
         return self.chat_completion(
             messages=messages,
             model=self.config.smart_model,
-            response_format=response_format,
+            #response_format=response_format,
+            stream=False,
             **kwargs
         )
 

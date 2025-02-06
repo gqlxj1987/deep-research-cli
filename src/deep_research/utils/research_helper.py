@@ -23,7 +23,7 @@ def translate_to_english(
         client = LLMClient()
 
     messages = [
-        {"role": "user", "content": f"""You are a professional translator. Translate the [{text}] to English. Only return the translated text without any explanations or additional content. Return in Json format: {{response:""}}"""}
+        {"role": "user", "content": f"""You are a professional translator. Translate the [{text}] to English. Only return translated text in Json format: {{response:""}}"""}
     ]
     return client.chat_completion(messages, **kwargs)['response']
 

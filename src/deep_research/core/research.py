@@ -80,7 +80,7 @@ class Research:
         self.research_content = json_content
 
         json_plan = generate_research_plan(json_content)
-        self.research_plan = json_plan
+        self.research_plan = json_plan['research_plan']
 
         self.save()
 
@@ -98,13 +98,12 @@ class Research:
             'research_id': self.research_id,
             'english_topic': self.english_topic,
             'research_content': self.research_content,
-            'research_plan': self.research_plan['research_plan']
+            'research_plan': self.research_plan
         }
 
         # Save metadata using PersistenceClient
         persistence_client = PersistenceClient()
-        output_file = f'output/{self.research_id}/{self.research_id}_meta.json'
-        persistence_client.save_json(metadata, output_file)
+        persistence_client.save_research_metadata(self.research_id, metadata)
 
     
 
@@ -140,20 +139,17 @@ class Research:
         """
         from deep_research.utils.research_helper import search_advanced
         from deep_research.services.persistence_service import PersistenceClient
-        import os
 
         persistence_client = PersistenceClient()
 
         if not self.research_plan:
             raise ValueError("No research plan available")
 
+        print(f'research plan: {self.research_plan}')
         for category_data in self.research_plan:
             category = category_data.get('category')
             if not category:
                 continue
-
-            # Sanitize category name for folder creation
-            category_folder = self._sanitize_filename(category)
             
             for query in category_data.get('queries_list', []):
                 if not query:
@@ -162,24 +158,33 @@ class Research:
                 # Perform advanced search
                 search_results = search_advanced(query)
 
-                # Sanitize query for filename
-                query_filename = self._sanitize_filename(query)
+                # Save search results using persistence service
+                persistence_client.save_search_results(self.research_id, category, query, search_results)
 
-                # Create output path
-                output_path = f'output/{self.research_id}/{category_folder}'
-                os.makedirs(output_path, exist_ok=True)
+    def get_category_results(self, category: str) -> List[Dict[str, str]]:
+        """Retrieve and process search results from a specific category
 
-                # Save search results
-                output_file = f'{output_path}/{query_filename}.json'
-                persistence_client.save_json(search_results, output_file)
+        Args:
+            category: The category name to process
+
+        Returns:
+            A list of dictionaries containing title and content for each result
+        """
+        from deep_research.services.persistence_service import PersistenceClient
+
+        persistence_client = PersistenceClient()
+        return persistence_client.load_category_results(self.research_id, category)
+
+
+
 
 
 if __name__ == "__main__":
     """Main function to demonstrate Research class usage"""
     topic = "What impact of X platform in 2025"
 
-    #research = Research(topic="What impact of X platform in 2025")
-    research = Research(research_id="RS_20250205_225813")
+    #research = Research(topic="美国运通在中国市场 2025 年的深度量化分析")
+    research = Research(research_id="RS_20250206_101006")
     
     print(f"Created research with ID: {research.id}")
     print(f"Original topic: {research.topic}")
@@ -188,5 +193,7 @@ if __name__ == "__main__":
     print(f"Research Content: {research.research_content}")
     print("========================================================")
     print(f"Research Plan: {research.research_plan}")
-
-    research.execute_search()
+    print("========================================================")
+    #research.execute_search()
+    re = research.get_category_results("Growth Trends")
+    print(re)

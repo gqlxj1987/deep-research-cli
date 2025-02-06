@@ -2,7 +2,7 @@
 
 import json
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 
 class PersistenceClient:
     """Client for handling JSON data persistence operations"""
@@ -47,11 +47,112 @@ class PersistenceClient:
         Returns:
             A dictionary containing either the loaded data or an error message
         """
+        try:
+            with open(os.path.join(self.base_dir, file_path), 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data
+        except Exception as e:
+            raise ValueError(f"Failed to load JSON data from {file_path}: {str(e)}")
 
-        with open(os.path.join(self.base_dir, file_path), 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            return data
+    def save_research_metadata(self, research_id: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        """Save research metadata to a JSON file
+        
+        Args:
+            research_id: The unique identifier for the research
+            metadata: The metadata to save
+            
+        Returns:
+            A dictionary indicating success or error
+        """
+        output_file = f'output/{research_id}/{research_id}_meta.json'
+        return self.save_json(metadata, output_file)
 
+    def load_research_metadata(self, research_id: str) -> Dict[str, Any]:
+        """Load research metadata from a JSON file
+        
+        Args:
+            research_id: The unique identifier for the research
+            
+        Returns:
+            A dictionary containing the research metadata
+        """
+        file_path = f'output/{research_id}/{research_id}_meta.json'
+        return self.load_json(file_path)
+
+    def save_search_results(self, research_id: str, category: str, query: str, results: Dict[str, Any]) -> Dict[str, Any]:
+        """Save search results to a JSON file
+        
+        Args:
+            research_id: The unique identifier for the research
+            category: The category name
+            query: The search query
+            results: The search results to save
+            
+        Returns:
+            A dictionary indicating success or error
+        """
+        import re
+        # Sanitize category and query for filename
+        sanitized_category = re.sub(r'[^\w\s-]', '', category)
+        sanitized_category = re.sub(r'[-\s]+', '_', sanitized_category)
+        sanitized_query = re.sub(r'[^\w\s-]', '', query)
+        sanitized_query = re.sub(r'[-\s]+', '_', sanitized_query)
+
+        output_path = f'output/{research_id}/{sanitized_category}'
+        os.makedirs(output_path, exist_ok=True)
+        output_file = f'{output_path}/{sanitized_query}.json'
+        return self.save_json(results, output_file)
+
+    def load_category_results(self, research_id: str, category: str) -> List[Dict[str, str]]:
+        """Load all search results for a specific category
+        
+        Args:
+            research_id: The unique identifier for the research
+            category: The category name
+            
+        Returns:
+            A list of dictionaries containing title and content for each result
+        """
+        import re
+        import glob
+
+        # Sanitize category name for folder path
+        sanitized_category = re.sub(r'[^\w\s-]', '', category)
+        sanitized_category = re.sub(r'[-\s]+', '_', sanitized_category)
+        category_path = f'output/{research_id}/{sanitized_category}'
+
+        # Initialize result list
+        results = []
+
+        # Check if category directory exists
+        if not os.path.exists(category_path):
+            return results
+
+        # Get all JSON files in the category directory
+        json_files = glob.glob(os.path.join(category_path, '*.json'))
+
+        # Process each JSON file
+        for json_file in json_files:
+            try:
+                # Load the JSON file
+                data = self.load_json(os.path.relpath(json_file))
+
+                # Process each result in the file
+                for result in data.get('results', []):
+                    title = result.get('title', '')
+                    # Use raw_content if available, otherwise fall back to content
+                    content = result.get('raw_content') or result.get('content', '')
+
+                    if title and content:
+                        results.append({
+                            'title': title,
+                            'content': content
+                        })
+            except Exception as e:
+                print(f"Error processing file {json_file}: {str(e)}")
+                continue
+
+        return results
 
 
 if __name__ == '__main__':
