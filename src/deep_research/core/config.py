@@ -11,7 +11,7 @@ class Config:
     """Configuration class for model settings"""
     SMART_MODEL = "deepseek/deepseek-r1"
     NORMAL_MODEL = "deepseek/deepseek-r1-distill-llama-70b"
-    
+    LONG_MODEL = "google/gemini-2.0-flash-001"
     #SMART_MODEL = "deepseek-reasoner"
     #NORMAL_MODEL = "deepseek-reasoner"
 
@@ -22,6 +22,7 @@ class LLMConfig:
         self.api_base = os.getenv('OPENAI_BASE')
         self.smart_model = os.getenv('SMART_MODEL', Config.SMART_MODEL)
         self.normal_model = os.getenv('NORMAL_MODEL', Config.NORMAL_MODEL)
+        self.long_model = os.getenv('LONG_MODEL', Config.LONG_MODEL)
 
         if not self.api_key:
             raise ValueError('OPENAI_KEY environment variable is not set')

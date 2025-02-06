@@ -175,7 +175,41 @@ class Research:
         persistence_client = PersistenceClient()
         return persistence_client.load_category_results(self.research_id, category)
 
+    
 
+    def generate_category_report(self, category: str) -> Dict[str, Any]:
+        """Generate and save a research report for a specific category
+
+        Args:
+            category: The category name to generate report for
+
+        Returns:
+            A dictionary containing the generated report
+        """
+        from deep_research.utils.research_helper import generate_research_category_report
+
+        # Get category results
+        category_results = self.get_category_results(category)
+
+        # Generate report
+        report = generate_research_category_report(
+            research_content=self.research_content,
+            category=category,
+            category_resrouces=category_results
+        )
+
+        # Sanitize category name for file path
+        sanitized_category = self._sanitize_filename(category)
+        file_path = f'output/{self.research_id}/{sanitized_category}_report.json'
+
+        # Save report
+        from deep_research.services.persistence_service import PersistenceClient
+        persistence_client = PersistenceClient()
+        persistence_client.save_json(report, file_path)
+
+        return report
+
+    
 
 
 
@@ -195,5 +229,7 @@ if __name__ == "__main__":
     print(f"Research Plan: {research.research_plan}")
     print("========================================================")
     #research.execute_search()
-    re = research.get_category_results("Growth Trends")
-    print(re)
+    #re = research.get_category_results("Growth Trends")
+
+    research.generate_category_report("Growth Trends")
+    

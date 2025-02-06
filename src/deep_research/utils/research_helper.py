@@ -1,6 +1,6 @@
 """Utility module for business-level operations and prompts"""
 
-from typing import Dict, Any
+from typing import Dict, Any, List
 from deep_research.services.ai_service import LLMClient
 from deep_research.services.search_service import SearchClient
 
@@ -116,6 +116,41 @@ def search_advanced(
     print(response)
     return response
 
+def generate_research_category_report(research_content: Dict[str, str], category: str, category_resrouces: List[Dict[str, str]]):
+    client = LLMClient()
+    messages = [
+        {"role": "user", "content": f'''You are a pro researcher. Current research topic is:
+
+{research_content}
+
+Under sub research category [{category}]
+
+Please read all the collected resources and sorted into one comprehensive report, output in json format.
+
+Follow below:
+
+- Quantitative Numbers are important facts.
+- Group opinions into sections
+- Based on current category and overall research topic and goals, rethink out of box, provide your own deep dive opinions.
+- rethink again, provide a deeper thinking.
+
+Collected resources to read:
+```
+{category_resrouces}
+```
+
+Provide output in JSON format.
+
+```
+{{
+  category: "",
+  category_report_in_markdown: ""
+}}
+```'''}
+    ]
+    response = client.long_completion(messages)
+    #print(response)
+    return response
 
 if __name__ == '__main__':
     # Example usage of translate_to_english
