@@ -58,6 +58,8 @@ class LLMClient:
             **params,
             **kwargs
         )
+        print("=========== Pure Response:")
+        print(response)
         content = response.choices[0].message.content
         print("=========== LLM Response:")
         print(content)

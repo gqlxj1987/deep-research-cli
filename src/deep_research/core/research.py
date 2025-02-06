@@ -98,7 +98,7 @@ class Research:
             'research_id': self.research_id,
             'english_topic': self.english_topic,
             'research_content': self.research_content,
-            'research_plan': self.research_plan
+            'research_plan': self.research_plan['research_plan']
         }
 
         # Save metadata using PersistenceClient
@@ -117,11 +117,69 @@ class Research:
         """
         return self.research_id
 
+    def _sanitize_filename(self, name: str) -> str:
+        """Sanitize a string to be used as a filename
+
+        Args:
+            name: The string to sanitize
+
+        Returns:
+            A sanitized string safe for use as a filename
+        """
+        import re
+        # Remove special characters and replace spaces with underscores
+        sanitized = re.sub(r'[^\w\s-]', '', name)
+        sanitized = re.sub(r'[-\s]+', '_', sanitized)
+        return sanitized
+
+    def execute_search(self) -> None:
+        """Execute searches for all queries in the research plan
+
+        Iterates through the research plan, performs advanced searches for each query,
+        and saves results in category-specific directories.
+        """
+        from deep_research.utils.research_helper import search_advanced
+        from deep_research.services.persistence_service import PersistenceClient
+        import os
+
+        persistence_client = PersistenceClient()
+
+        if not self.research_plan:
+            raise ValueError("No research plan available")
+
+        for category_data in self.research_plan:
+            category = category_data.get('category')
+            if not category:
+                continue
+
+            # Sanitize category name for folder creation
+            category_folder = self._sanitize_filename(category)
+            
+            for query in category_data.get('queries_list', []):
+                if not query:
+                    continue
+
+                # Perform advanced search
+                search_results = search_advanced(query)
+
+                # Sanitize query for filename
+                query_filename = self._sanitize_filename(query)
+
+                # Create output path
+                output_path = f'output/{self.research_id}/{category_folder}'
+                os.makedirs(output_path, exist_ok=True)
+
+                # Save search results
+                output_file = f'{output_path}/{query_filename}.json'
+                persistence_client.save_json(search_results, output_file)
+
 
 if __name__ == "__main__":
     """Main function to demonstrate Research class usage"""
     topic = "What impact of X platform in 2025"
-    research = Research(research_id="RS_20250205_212326")
+
+    #research = Research(topic="What impact of X platform in 2025")
+    research = Research(research_id="RS_20250205_225813")
     
     print(f"Created research with ID: {research.id}")
     print(f"Original topic: {research.topic}")
@@ -130,3 +188,5 @@ if __name__ == "__main__":
     print(f"Research Content: {research.research_content}")
     print("========================================================")
     print(f"Research Plan: {research.research_plan}")
+
+    research.execute_search()
