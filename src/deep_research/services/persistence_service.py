@@ -142,10 +142,11 @@ class PersistenceClient:
                     title = result.get('title', '')
                     # Use raw_content if available, otherwise fall back to content
                     content = result.get('raw_content') or result.get('content', '')
-
+                    url = result.get('url', '')
                     if title and content:
                         results.append({
                             'title': title,
+                            'url': url,
                             'content': content
                         })
             except Exception as e:
@@ -154,6 +155,33 @@ class PersistenceClient:
 
         return results
 
+    def load_category_reports(self, research_id: str) -> List[Dict[str, str]]:
+        import re
+        import glob
+
+        # Initialize list
+        reports = []
+
+        report_path = f'output/{research_id}'
+
+        # Check if category directory exists
+        if not os.path.exists(report_path):
+            return reports
+
+        # Get all JSON files in the category directory
+        json_files = glob.glob(os.path.join(report_path, '*_report.json'))
+
+        # Process each JSON file
+        for json_file in json_files:
+            try:
+                # Load the JSON file
+                data = self.load_json(os.path.relpath(json_file))
+                reports.append(data)
+            except Exception as e:
+                print(f"Error processing file {json_file}: {str(e)}")
+                continue
+
+        return reports
 
 if __name__ == '__main__':
     # Example usage of PersistenceClient

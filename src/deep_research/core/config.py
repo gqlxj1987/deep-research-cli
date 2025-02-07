@@ -14,6 +14,7 @@ class Config:
     LONG_MODEL = "google/gemini-2.0-flash-001"
     #SMART_MODEL = "deepseek-reasoner"
     #NORMAL_MODEL = "deepseek-reasoner"
+    REPORT_LANG = "Chinese"
 
 class LLMConfig:
     """Configuration class for LLM models"""

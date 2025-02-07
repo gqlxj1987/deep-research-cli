@@ -175,6 +175,20 @@ class Research:
         persistence_client = PersistenceClient()
         return persistence_client.load_category_results(self.research_id, category)
 
+    def get_category_reports(self) -> List[Dict[str, str]]:
+        """Retrieve and process search results from a specific category
+
+        Args:
+            category: The category name to process
+
+        Returns:
+            A list of dictionaries containing title and content for each result
+        """
+        from deep_research.services.persistence_service import PersistenceClient
+
+        persistence_client = PersistenceClient()
+        return persistence_client.load_category_reports(self.research_id)
+
     
 
     def generate_category_report(self, category: str) -> Dict[str, Any]:
@@ -211,6 +225,53 @@ class Research:
 
     
 
+    def generate_all_category_reports(self) -> List[Dict[str, Any]]:
+        """Generate reports for all categories in the research plan
+
+        Iterates through each category in the research plan and generates a report for each one.
+
+        Returns:
+            A list of dictionaries containing the generated reports for each category
+        """
+        if not self.research_plan:
+            raise ValueError("No research plan available")
+
+        reports = []
+        for category_data in self.research_plan:
+            category = category_data.get('category')
+            if not category:
+                continue
+
+            try:
+                report = self.generate_category_report(category)
+                reports.append(report)
+            except Exception as e:
+                print(f"Error generating report for category {category}: {str(e)}")
+                continue
+
+        return reports
+
+    def generate_research_report(self) -> Dict[str, Any]:
+            """Generate final research report
+            """
+            if not self.research_plan:
+                raise ValueError("No research plan available")
+
+            reports = self.get_category_reports()
+
+            from deep_research.utils.research_helper import generate_research_final_report
+
+            # Get category results
+            report_json = generate_research_final_report(research_content=self.research_content, reports=reports)
+
+            file_path = f'output/{self.research_id}/{self.research_id}_research.json'
+
+            # Save report
+            from deep_research.services.persistence_service import PersistenceClient
+            persistence_client = PersistenceClient()
+            persistence_client.save_json(report_json, file_path)
+
+            return report_json
 
 
 if __name__ == "__main__":
@@ -221,15 +282,16 @@ if __name__ == "__main__":
     research = Research(research_id="RS_20250206_101006")
     
     print(f"Created research with ID: {research.id}")
-    print(f"Original topic: {research.topic}")
-    print(f"English topic: {research.english_topic}")
-    print("========================================================")
-    print(f"Research Content: {research.research_content}")
-    print("========================================================")
-    print(f"Research Plan: {research.research_plan}")
-    print("========================================================")
+    # print(f"Original topic: {research.topic}")
+    # print(f"English topic: {research.english_topic}")
+    # print("========================================================")
+    # print(f"Research Content: {research.research_content}")
+    # print("========================================================")
+    # print(f"Research Plan: {research.research_plan}")
+    # print("========================================================")
     #research.execute_search()
     #re = research.get_category_results("Growth Trends")
-
-    research.generate_category_report("Growth Trends")
+    research.generate_all_category_reports()
+    #research.generate_research_report()
+    #research.generate_category_report("Growth Trends")
     
