@@ -38,6 +38,7 @@ class PersistenceClient:
         except Exception as e:
             return {"success": False, "error": str(e)}
     
+    
     def load_json(self, file_path: str) -> Dict[str, Any]:
         """Load data from a JSON file
         
@@ -182,6 +183,28 @@ class PersistenceClient:
                 continue
 
         return reports
+
+    def save_file(self, file_path: str, content: str) -> Dict[str, Any]:
+        """Save content to a file
+        
+        Args:
+            file_path: Path to the file where content will be saved
+            content: The content to save to the file
+            
+        Returns:
+            A dictionary indicating success or error
+        """
+        try:
+            # Ensure the directory exists
+            os.makedirs(os.path.dirname(os.path.join(self.base_dir, file_path)), exist_ok=True)
+            
+            # Write content to file
+            with open(os.path.join(self.base_dir, file_path), 'w', encoding='utf-8') as f:
+                f.write(content)
+            
+            return {"success": True, "message": f"Content successfully saved to {file_path}"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
 if __name__ == '__main__':
     # Example usage of PersistenceClient

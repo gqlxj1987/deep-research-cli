@@ -32,7 +32,7 @@ class LLMClient:
         self,
         messages: list[Dict[str, str]],
         model: Optional[str] = None,
-        response_format: Optional[Dict[str, str]] = None,
+        response_format: str = 'json',
         **kwargs: Any
     ) -> Dict[str, Any]:
         """Send a chat completion request to the OpenAI API
@@ -50,9 +50,6 @@ class LLMClient:
             "model": model or self.config.normal_model,
             "messages": messages
         }
-        
-        if response_format:
-            params["response_format"] = response_format
             
         response = self.client.chat.completions.create(
             **params,
@@ -61,19 +58,18 @@ class LLMClient:
         print("=========== Pure Response:")
         print(response)
         content = response.choices[0].message.content
-        print("=========== LLM Response:")
-        print(content)
-        repaired_json = json_repair.loads(content)
 
-        print("=========== Repaired Json:")
-        print(repaired_json)
-        
-        return repaired_json
+        # if response_format = 'json', then parse the content
+        if response_format == 'json':
+            repaired_json = json_repair.loads(content)
+            return repaired_json
+        else:
+            return content 
 
     def smart_completion(
         self,
         messages: list[Dict[str, str]],
-        response_format: Optional[Dict[str, str]] = None,
+        response_format: str = 'json',
         **kwargs: Any
     ) -> Dict[str, Any]:
         """Use the smart model (e.g. GPT-4) for chat completion
@@ -89,14 +85,14 @@ class LLMClient:
         return self.chat_completion(
             messages=messages,
             model=self.config.smart_model,
-            #response_format=response_format,
+            response_format=response_format,
             stream=False,
             **kwargs
         )
     def long_completion(
             self,
             messages: list[Dict[str, str]],
-            response_format: Optional[Dict[str, str]] = None,
+            response_format: str = 'json',
             **kwargs: Any
         ) -> Dict[str, Any]:
             """Use the smart model (e.g. GPT-4) for chat completion
@@ -112,12 +108,12 @@ class LLMClient:
             return self.chat_completion(
                 messages=messages,
                 model=self.config.long_model,
-                #response_format=response_format,
+                response_format=response_format,
                 stream=False,
                 **kwargs
             )
 
-            
+
 if __name__ == '__main__':
     # Example usage of LLMClient
     try:

@@ -212,6 +212,10 @@ class Research:
             category_resrouces=category_results
         )
 
+        report_json = {
+            "category": category,
+            "report": report
+        }
         # Sanitize category name for file path
         sanitized_category = self._sanitize_filename(category)
         file_path = f'output/{self.research_id}/{sanitized_category}_report.json'
@@ -219,9 +223,9 @@ class Research:
         # Save report
         from deep_research.services.persistence_service import PersistenceClient
         persistence_client = PersistenceClient()
-        persistence_client.save_json(report, file_path)
+        persistence_client.save_json(report_json, file_path)
 
-        return report
+        return report_json
 
     
 
@@ -262,16 +266,16 @@ class Research:
             from deep_research.utils.research_helper import generate_research_final_report
 
             # Get category results
-            report_json = generate_research_final_report(research_content=self.research_content, reports=reports)
+            report_content = generate_research_final_report(research_content=self.research_content, reports=reports)
 
-            file_path = f'output/{self.research_id}/{self.research_id}_research.json'
+            file_path = f'output/{self.research_id}/{self.research_id}_research.md'
 
             # Save report
             from deep_research.services.persistence_service import PersistenceClient
             persistence_client = PersistenceClient()
-            persistence_client.save_json(report_json, file_path)
+            persistence_client.save_file(file_path, report_content)
 
-            return report_json
+            return report_content
 
 
 if __name__ == "__main__":
@@ -291,7 +295,7 @@ if __name__ == "__main__":
     # print("========================================================")
     #research.execute_search()
     #re = research.get_category_results("Growth Trends")
-    research.generate_all_category_reports()
-    #research.generate_research_report()
+    #research.generate_all_category_reports()
+    research.generate_research_report()
     #research.generate_category_report("Growth Trends")
     
