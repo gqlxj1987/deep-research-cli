@@ -149,7 +149,7 @@ Provide output in Markdown format.
     #print(response)
     return response
 
-def generate_research_final_report(research_content: Dict[str, str], reports: List[Dict[str, str]]):
+def generate_research_final_report(research_content: Dict[str, str], reports: List[Dict[str, str]], model: str = Config.REPORT_MODEL):
     client = LLMClient()
     messages = [
         {"role": "system", "content": f'''Your Task: Based on the provided literature and materials, your goal is to compile a comprehensive and detailed investigative report. 
@@ -163,6 +163,7 @@ Instructions:
 - Deepen the Insights: Continuously reflect on your insights to generate even deeper and more profound observations. The goal is to create a report that offers truly insightful analysis.
 - Structure Your Insights: You should identify at least five key insights. Each insight should be thoroughly explained in its own section, detailing your thought process and reasoning.
 - Ensure Clarity and Logic: The final report should have a clear structure and logical flow.
+- Use tables and graphs when necessary to support your insights.
 - Format the Output: Use Markdown to format the report and present it to me. 
 
 ---
@@ -187,7 +188,7 @@ Provide your output in markdown format.
 
 '''}
     ]
-    response = client.smart_completion(messages, response_format='markdown')
+    response = client.chat_completion(messages, model=model, response_format='markdown')
     #print(response)
     return response
 

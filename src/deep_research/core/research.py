@@ -313,21 +313,20 @@ class Research:
 
 
 if __name__ == "__main__":
-    #research = Research(topic="美国运通在中国市场 2025 年的深度量化分析")
-    research = Research(research_id="RS_20250207_220622")
+    research = Research(topic="美国运通和万事达被批准人民币清算业务后，2019 年到 2024 年对银联业务影响的深度量化分析")
+    #research = Research(research_id="RS_20250207_220622")
     print(f"Created research with ID: {research.id}")
 
     # Step. 01
-    # research.execute_search()
+    research.execute_search()
 
     # Step. 02
-    #re = research.get_category_results("Growth Trends")
-    #research.generate_all_category_reports()
+    research.generate_all_category_reports()
 
     # Step. 03
-    #research.generate_research_report()
+    research.generate_all_category_links()
 
     # Step. 04
-    research.generate_all_category_links()
+    research.generate_research_report()
 
     

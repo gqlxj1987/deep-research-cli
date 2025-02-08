@@ -12,6 +12,7 @@ class Config:
     SMART_MODEL = "deepseek/deepseek-r1"
     NORMAL_MODEL = "deepseek/deepseek-r1-distill-llama-70b"
     LONG_MODEL = "google/gemini-2.0-flash-001"
+    REPORT_MODEL = "google/gemini-2.0-pro-exp-02-05:free"
     #SMART_MODEL = "deepseek-reasoner"
     #NORMAL_MODEL = "deepseek-reasoner"
     REPORT_LANG = "Chinese"
