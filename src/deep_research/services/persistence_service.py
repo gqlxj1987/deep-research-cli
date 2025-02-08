@@ -144,7 +144,7 @@ class PersistenceClient:
                     # Use raw_content if available, otherwise fall back to content
                     content = result.get('raw_content') or result.get('content', '')
                     url = result.get('url', '')
-                    if title and content and result.get('score', 0) > 0.5:
+                    if title and content and result.get('score', 0) > 0.6:
                         results.append({
                             'title': title,
                             'url': url,

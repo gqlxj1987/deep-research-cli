@@ -334,6 +334,8 @@ if __name__ == "__main__":
     else:
         research = Research(research_id="RS_20250208_150955")
         # Step. 04
-        research.generate_research_report(model="deepseek/deepseek-r1")
+        # Step. 03
+        research.generate_all_category_links()
+        #research.generate_research_report(model="deepseek/deepseek-r1")
 
     
