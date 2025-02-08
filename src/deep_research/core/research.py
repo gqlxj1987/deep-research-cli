@@ -316,7 +316,7 @@ class Research:
 
 if __name__ == "__main__":
     if False:
-        research = Research(topic="DeepSeek R1 的发布会影响 2025-2030 年哪些美股和中国 A 股股票的投资逻辑，精确到明确个股和股票代码并提供投资建议。")
+        research = Research(topic="DeepSeek R1 的发布最值得投资的隐藏的中国 A 股股票，深度分析板块和行业关联，找到除了芯片行业外的隐藏机会。")
         #research = Research(research_id="RS_20250208_140344")
         print(f"Created research with ID: {research.id}")
 
@@ -330,9 +330,9 @@ if __name__ == "__main__":
         research.generate_all_category_links()
 
         # Step. 04
-        research.generate_research_report()
+        research.generate_research_report(model="deepseek/deepseek-r1")
     else:
-        research = Research(research_id="RS_20250208_142939")
+        research = Research(research_id="RS_20250208_150955")
         # Step. 04
         research.generate_research_report(model="deepseek/deepseek-r1")
 
