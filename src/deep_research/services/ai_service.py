@@ -44,7 +44,7 @@ class LLMClient:
             **kwargs: Additional parameters to pass to the API
 
         Returns:
-            The response content as a JSON object
+            The response content as a JSON object or markdown string
         """
         params = {
             "model": model or self.config.normal_model,
@@ -59,12 +59,30 @@ class LLMClient:
         print(response)
         content = response.choices[0].message.content
 
-        # if response_format = 'json', then parse the content
+        # Handle markdown format with potential token limit handling
+        if response_format == 'markdown':
+            # Check if response was truncated due to token limit
+            if response.choices[0].native_finish_reason == 'MAX_TOKENS' and 'google' in model.lower():
+                # Append the partial response to messages and continue the conversation
+                messages.append({"role": "assistant", "content": content})
+                messages.append({"role": "user", "content": "Please continue from where you left off."})                
+                # Recursively get the rest of the response
+                continuation = self.chat_completion(
+                    messages=messages,
+                    model=model,
+                    response_format='markdown',
+                    **kwargs
+                )
+                # Combine the current content with the continuation
+                return content + continuation
+            return content
+        
+        # Handle JSON format
         if response_format == 'json':
             repaired_json = json_repair.loads(content)
             return repaired_json
-        else:
-            return content 
+        
+        return content
 
     def smart_completion(
         self,

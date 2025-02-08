@@ -152,17 +152,17 @@ Provide output in Markdown format.
 def generate_research_final_report(research_content: Dict[str, str], reports: List[Dict[str, str]]):
     client = LLMClient()
     messages = [
-        {"role": "system", "content": f'''Your Task: Based on the provided literature and materials, your goal is to compile a comprehensive and detailed investigative report. The report should not only summarize the content but also provide extensive analysis, insights, and explanations to ensure sufficient length and depth.
+        {"role": "system", "content": f'''Your Task: Based on the provided literature and materials, your goal is to compile a comprehensive and detailed investigative report. 
+The report provide extensive analysis, insights, and explanations to ensure sufficient length and depth. Provide report with more than 6000 Tokens.
 
 Instructions:
 
 - Integrate the Literature: First, you need to integrate all the content from the provided literature. Avoid deleting or simplifying the information; instead, reorganize it logically. 
-- Each section should be written in a detailed and elaborate manner, with no omission of information. Add as much explanations to make the report more detailed and easier to understand.
+- Each section should be written in a detailed and elaborate manner, with no omission of information. Make sure Add as much explanations to make the every section more detailed and easier to understand.
 - Develop Insights: After summarizing, carefully analyze the content and the research topic to develop meaningful insights. These insights should go beyond what is explicitly mentioned in the literature and uncover new perspectives or implications.
 - Deepen the Insights: Continuously reflect on your insights to generate even deeper and more profound observations. The goal is to create a report that offers truly insightful analysis.
 - Structure Your Insights: You should identify at least five key insights. Each insight should be thoroughly explained in its own section, detailing your thought process and reasoning.
 - Ensure Clarity and Logic: The final report should have a clear structure and logical flow.
-- Total report under 7500 token limit.
 - Format the Output: Use Markdown to format the report and present it to me. 
 
 ---

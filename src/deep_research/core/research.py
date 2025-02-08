@@ -227,7 +227,41 @@ class Research:
 
         return report_json
 
-    
+    def generate_all_category_links(self) -> List[str]:
+        """Generate links for all categories in the research plan
+        Iterates through each category in the research plan and generates a link for each one.
+        Returns:
+            A list of strings containing the generated links for each category
+        """
+        if not self.research_plan:
+            raise ValueError("No research plan available")
+        links = []
+        for category_data in self.research_plan:
+            category = category_data.get('category')
+            if not category:
+                continue
+            try:
+                # Get category results
+                category_results = self.get_category_results(category)
+                for result in category_results:
+                    title = result['title']
+                    url = result['url']
+                    link = f"[{title}]({url})"
+                    links.append(link)
+            except Exception as e:
+                print(f"Error generating link for category {category}: {str(e)}")
+                continue
+        reference_content = "## Reference\n\n"
+        reference_content += '\n'.join(f'- {item}' for item in links)
+        file_path = f'output/{self.research_id}/{self.research_id}_reference.md'
+
+            # Save report
+        from deep_research.services.persistence_service import PersistenceClient
+        persistence_client = PersistenceClient()
+        persistence_client.save_file(file_path, reference_content)
+
+        return links
+
 
     def generate_all_category_reports(self) -> List[Dict[str, Any]]:
         """Generate reports for all categories in the research plan
@@ -279,23 +313,21 @@ class Research:
 
 
 if __name__ == "__main__":
-    """Main function to demonstrate Research class usage"""
-    topic = "What impact of X platform in 2025"
-
     #research = Research(topic="美国运通在中国市场 2025 年的深度量化分析")
-    research = Research(research_id="RS_20250206_101006")
-    
+    research = Research(research_id="RS_20250207_220622")
     print(f"Created research with ID: {research.id}")
-    # print(f"Original topic: {research.topic}")
-    # print(f"English topic: {research.english_topic}")
-    # print("========================================================")
-    # print(f"Research Content: {research.research_content}")
-    # print("========================================================")
-    # print(f"Research Plan: {research.research_plan}")
-    # print("========================================================")
-    #research.execute_search()
+
+    # Step. 01
+    # research.execute_search()
+
+    # Step. 02
     #re = research.get_category_results("Growth Trends")
     #research.generate_all_category_reports()
-    research.generate_research_report()
-    #research.generate_category_report("Growth Trends")
+
+    # Step. 03
+    #research.generate_research_report()
+
+    # Step. 04
+    research.generate_all_category_links()
+
     
