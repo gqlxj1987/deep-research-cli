@@ -3,6 +3,7 @@
 from datetime import datetime
 from typing import List, Dict, Any
 from deep_research.utils.research_helper import translate_to_english, generate_research_content, generate_research_plan
+from deep_research.core.config import Config
 
 class Research:
     """Class for managing research operations"""
@@ -289,7 +290,7 @@ class Research:
 
         return reports
 
-    def generate_research_report(self) -> Dict[str, Any]:
+    def generate_research_report(self, model=Config.REPORT_MODEL) -> Dict[str, Any]:
             """Generate final research report
             """
             if not self.research_plan:
@@ -300,9 +301,10 @@ class Research:
             from deep_research.utils.research_helper import generate_research_final_report
 
             # Get category results
-            report_content = generate_research_final_report(research_content=self.research_content, reports=reports)
-
-            file_path = f'output/{self.research_id}/{self.research_id}_research.md'
+            report_content = generate_research_final_report(research_content=self.research_content, reports=reports, model=model)
+            
+            model_name = self._sanitize_filename(model)
+            file_path = f'output/{self.research_id}/{self.research_id}_{model_name}_research.md'
 
             # Save report
             from deep_research.services.persistence_service import PersistenceClient
@@ -313,20 +315,25 @@ class Research:
 
 
 if __name__ == "__main__":
-    research = Research(topic="美国运通和万事达被批准人民币清算业务后，2019 年到 2024 年对银联业务影响的深度量化分析")
-    #research = Research(research_id="RS_20250207_220622")
-    print(f"Created research with ID: {research.id}")
+    if False:
+        research = Research(topic="DeepSeek R1 的发布会影响 2025-2030 年哪些美股和中国 A 股股票的投资逻辑，精确到明确个股和股票代码并提供投资建议。")
+        #research = Research(research_id="RS_20250208_140344")
+        print(f"Created research with ID: {research.id}")
 
-    # Step. 01
-    research.execute_search()
+        # Step. 01
+        research.execute_search()
 
-    # Step. 02
-    research.generate_all_category_reports()
+        # Step. 02
+        research.generate_all_category_reports()
 
-    # Step. 03
-    research.generate_all_category_links()
+        # Step. 03
+        research.generate_all_category_links()
 
-    # Step. 04
-    research.generate_research_report()
+        # Step. 04
+        research.generate_research_report()
+    else:
+        research = Research(research_id="RS_20250208_142939")
+        # Step. 04
+        research.generate_research_report(model="deepseek/deepseek-r1")
 
     
