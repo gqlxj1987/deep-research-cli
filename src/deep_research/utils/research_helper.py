@@ -37,7 +37,7 @@ def generate_research_content(
         client = LLMClient()
 
     messages = [
-        {"role": "user", "content": f'''You are a research planner, to provide comprehensive framework of searching keywords for user to search information for research purpose.
+        {"role": "user", "content": f'''You are a research expert, to provide comprehensive framework of searching keywords for user to search information for research purpose.
 
 User will provide a topic or target for research.
 
@@ -96,7 +96,7 @@ You will provide the research plan in below  in JSON format:
 }}
 ```
 
-rethink until you think the plan is comprehensive for a profressional research. Adjust or append if you think still missing some. 
+rethink until you think the plan is comprehensive for finding the answer or support the research. Adjust or append if you think still missing some. 
 Provide output in pure JSON format.
 '''}
     ]
