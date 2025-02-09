@@ -72,7 +72,10 @@ def generate_research_plan(
     messages = [
         {"role": "user", "content": f'''You are a research planner, to provide comprehensive framework of searching keywords for user to search information for research purpose.
 
-Based on below research information, you will work out a comprehensive list of queries for user to collect informations on Search Engines cover everything aspect of the research goal.
+Based on below research information
+
+- you will work out a comprehensive list of queries for user to collect informations on Search Engines cover everything aspect of the research goal.
+- Query need to be specific to the research topic and category to narrow the results.
 
 ```
 {research_content}
@@ -153,18 +156,15 @@ def generate_research_final_report(research_content: Dict[str, str], reports: Li
     client = LLMClient()
     messages = [
         {"role": "system", "content": f'''Your Task: Based on the provided literature and materials, your goal is to compile a comprehensive and detailed investigative report. 
-The report provide extensive analysis, insights, and explanations to ensure sufficient length and depth. Provide report with more than 6000 Tokens.
+The report provide extensive analysis, insights, and explanations to ensure sufficient length and depth. 
 
 Instructions:
 
-- Integrate the Literature: First, you need to integrate all the content from the provided literature. Avoid deleting or simplifying the information; instead, reorganize it logically. 
-- Each section should be written in a detailed and elaborate manner, with no omission of information. Make sure Add as much explanations to make the every section more detailed and easier to understand.
-- Develop Insights: After summarizing, carefully analyze the content and the research topic to develop meaningful insights. These insights should go beyond what is explicitly mentioned in the literature and uncover new perspectives or implications.
-- Deepen the Insights: Continuously reflect on your insights to generate even deeper and more profound observations. The goal is to create a report that offers truly insightful analysis.
-- Structure Your Insights: You should identify at least five key insights. Each insight should be thoroughly explained in its own section, detailing your thought process and reasoning.
-- Ensure Clarity and Logic: The final report should have a clear structure and logical flow.
-- Use tables and graphs when necessary to support your insights.
-- Format the Output: Use Markdown to format the report and present it to me. 
+- Always Focus on the research goal.
+- Integrate the Literature: First, you need to integrate all the content from the provided literature. Avoid deleting or simplifying the information; instead, reorganize it logically with explain content for each. 
+- Numbers and Statistics: Always leave the reference source together.
+- Develop Insights: carefully analyze the content and the research topic to develop meaningful insights. These insights should go beyond what is explicitly mentioned in the literature and uncover new perspectives or implications.
+- Do not mention numbers you don't have evidence to support or skip sections without actual numbers from literature.
 
 ---
 
@@ -181,10 +181,12 @@ Report format:
 - Use [{Config.REPORT_LANG}]
 - Markdown format
 - with Key highlighted using ** bold
-- Title #, Section ##, Subsection ###
+- Title #
+- Section ## with insights
+- Subsection ### with lengthy explaination on each section
 
 
-Provide your output in markdown format.
+Provide your output in markdown format. 
 
 '''}
     ]

@@ -316,7 +316,7 @@ class Research:
 
 if __name__ == "__main__":
     if False:
-        research = Research(topic="DeepSeek R1 的发布最值得投资的隐藏的中国 A 股股票，深度分析板块和行业关联，找到除了芯片行业外的隐藏机会。")
+        research = Research(topic="中国信用卡消费市场最全面的数据分析报告，涵盖所有方面，罗列所有数据并整理，保留数据源形成极大篇幅的数据汇总。")
         #research = Research(research_id="RS_20250208_140344")
         print(f"Created research with ID: {research.id}")
 
@@ -332,10 +332,10 @@ if __name__ == "__main__":
         # Step. 04
         research.generate_research_report(model="deepseek/deepseek-r1")
     else:
-        research = Research(research_id="RS_20250208_150955")
+        research = Research(research_id="RS_20250209_141723")
         # Step. 04
         # Step. 03
-        research.generate_all_category_links()
-        #research.generate_research_report(model="deepseek/deepseek-r1")
+        #research.generate_all_category_links()
+        research.generate_research_report(model="google/gemini-2.0-pro-exp-02-05:free")
 
     

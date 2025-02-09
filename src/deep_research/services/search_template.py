@@ -14,7 +14,7 @@ class SearchTemplate:
         },
         "advanced": {
             "search_depth": "advanced",
-            "max_results": 5,
+            "max_results": 10,
             "include_domains": [],
             "exclude_domains": [],
             "include_raw_content": True,
