@@ -7,6 +7,9 @@ from deep_research.services.search_service import SearchClient
 from deep_research.services.persistence_service import PersistenceClient
 from deep_research.core.config import Config
 from deep_research.utils.log_util import LogUtil
+from dotenv import load_dotenv
+# Load environment variables
+load_dotenv()
 
 class ResearchHelper:
     """Class for managing research helper operations
@@ -106,6 +109,7 @@ Research Topic: [{text}]'''}
 
 Based on below research information
 
+- {os.getenv('RESEARCH_PLAN_PROMPT', "")}
 - you will work out a comprehensive list of queries for user to collect informations on Search Engines cover everything aspect of the research goal.
 - Query need to be specific to the research topic and category to narrow the results.
 

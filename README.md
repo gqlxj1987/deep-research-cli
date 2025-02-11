@@ -123,6 +123,13 @@ TAVILY_API_KEY=
 
 # c. Language use to create reports. Default = Chinese. Used in Prompt so just english words.
 # REPORT_LANG=Chinese
+
+# d. RESEARCH_PLAN_PROMPT, additional prompt which will hijack into Research Plan Creation process
+# RESEARCH_PLAN_PROMPT=
+
+# e. REPORT_PLAN_PROMPT, additional prompt which will hijack into Report Creation process influence the report content
+# REPORT_PROMPT=
+
 ```
 
 ## Research Cost Estimation
