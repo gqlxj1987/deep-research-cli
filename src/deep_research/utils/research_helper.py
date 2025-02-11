@@ -133,7 +133,7 @@ You will provide the research plan in below  in JSON format:
 
 rethink until you think the plan is comprehensive for finding the answer or support the research. Adjust or append if you think still missing some. 
 Provide output in pure JSON format.
-'''
+'''}
         ]
         try:
             result = self._llm_client.smart_completion(messages, **kwargs)
@@ -232,7 +232,7 @@ Collected resources to read:
 ```
 
 Provide output in Markdown format.
-'''
+'''}
         ]
         try:
             result = self._llm_client.long_completion(messages, response_format='markdown')
