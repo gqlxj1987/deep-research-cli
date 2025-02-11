@@ -1,43 +1,70 @@
-"""Utility module for business-level operations and prompts"""
 
 from typing import Dict, Any, List
+import os
+import glob
 from deep_research.services.ai_service import LLMClient
 from deep_research.services.search_service import SearchClient
+from deep_research.services.persistence_service import PersistenceClient
 from deep_research.core.config import Config
+from deep_research.utils.log_util import LogUtil
 
-def translate_to_english(
-    text: str,
-    client: LLMClient = None,
-    **kwargs: Any
-) -> Dict[str, str]:
-    """Translate any text to English using the LLM model
-
-    Args:
-        text: The text to translate to English
-        client: Optional LLMClient instance. If not provided, a new one will be created
-        **kwargs: Additional parameters to pass to the API
-
-    Returns:
-        The English translation as a string in a dictionary format
+class ResearchHelper:
+    """Class for managing research helper operations
+    
+    This class provides utility methods for handling various research operations,
+    including translation, content generation, search execution, and result management.
+    It integrates with various services (LLM, Search, Persistence) to provide a
+    comprehensive research assistance functionality.
     """
-    if client is None:
-        client = LLMClient()
 
-    messages = [
-        {"role": "user", "content": f"""You are a professional translator. Translate the [{text}] to English. Only return translated text in Json format: {{response:""}}"""}
-    ]
-    return client.chat_completion(messages, **kwargs)['response']
+    def __init__(self, research_id: str = None):
+        """Initialize a new research helper instance
 
-def generate_research_content(
-    text: str,
-    client: LLMClient = None,
-    **kwargs: Any
-) -> Dict[str, str]:
-    if client is None:
-        client = LLMClient()
+        Args:
+            research_id: The ID of the research to work with
+        """
+        self._logger = LogUtil().logger
+        self._logger.info(f"Initializing ResearchHelper with research_id: {research_id}")
+        self.research_id = research_id
+        self._llm_client = LLMClient()
+        self._search_client = SearchClient()
+        self._persistence_client = PersistenceClient()
 
-    messages = [
-        {"role": "user", "content": f'''You are a research expert, to provide comprehensive framework of searching keywords for user to search information for research purpose.
+    def translate_to_english(self, text: str, **kwargs: Any) -> Dict[str, str]:
+        """Translate any text to English using the LLM model
+
+        Args:
+            text: The text to translate to English
+            **kwargs: Additional parameters to pass to the API
+
+        Returns:
+            The English translation as a string in a dictionary format
+        """
+        self._logger.debug(f"Translating text to English: {text}")
+        messages = [
+            {"role": "user", "content": f"""You are a professional translator. Translate the [{text}] to English. Only return translated text in Json format: {{response:""}}"""}
+        ]
+        try:
+            result = self._llm_client.chat_completion(messages, **kwargs)['response']
+            self._logger.info(f"Successfully translated text to English")
+            return result
+        except Exception as e:
+            self._logger.error(f"Failed to translate text: {str(e)}")
+            raise
+
+    def generate_research_content(self, text: str, **kwargs: Any) -> Dict[str, str]:
+        """Generate research content based on the topic
+
+        Args:
+            text: The research topic
+            **kwargs: Additional parameters to pass to the API
+
+        Returns:
+            A dictionary containing the research content
+        """
+        self._logger.debug(f"Generating research content for topic: {text}")
+        messages = [
+            {"role": "user", "content": f'''You are a research expert, to provide comprehensive framework of searching keywords for user to search information for research purpose.
 
 User will provide a topic or target for research.
 
@@ -54,23 +81,28 @@ return your result in JSON format:
 }}
 ```
 Research Topic: [{text}]'''}
-    ]
+        ]
+        try:
+            result = self._llm_client.smart_completion(messages, **kwargs)
+            self._logger.info("Successfully generated research content")
+            return result
+        except Exception as e:
+            self._logger.error(f"Failed to generate research content: {str(e)}")
+            raise
 
-    response = client.smart_completion(messages, **kwargs)
-    #print(response)
-    return response
+    def generate_research_plan(self, research_content: Dict[str, str], **kwargs: Any) -> Dict[str, str]:
+        """Generate a research plan based on the research content
 
+        Args:
+            research_content: The research content to base the plan on
+            **kwargs: Additional parameters to pass to the API
 
-def generate_research_plan(
-    research_content: Dict[str, str],
-    client: LLMClient = None,
-    **kwargs: Any
-) -> Dict[str, str]:
-    if client is None:
-        client = LLMClient()
-
-    messages = [
-        {"role": "user", "content": f'''You are a research planner, to provide comprehensive framework of searching keywords for user to search information for research purpose.
+        Returns:
+            A dictionary containing the research plan
+        """
+        self._logger.debug("Generating research plan")
+        messages = [
+            {"role": "user", "content": f'''You are a research planner, to provide comprehensive framework of searching keywords for user to search information for research purpose.
 
 Based on below research information
 
@@ -101,30 +133,84 @@ You will provide the research plan in below  in JSON format:
 
 rethink until you think the plan is comprehensive for finding the answer or support the research. Adjust or append if you think still missing some. 
 Provide output in pure JSON format.
-'''}
-    ]
+'''
+        ]
+        try:
+            result = self._llm_client.smart_completion(messages, **kwargs)
+            self._logger.info("Successfully generated research plan")
+            return result
+        except Exception as e:
+            self._logger.error(f"Failed to generate research plan: {str(e)}")
+            raise
 
-    response = client.smart_completion(messages, **kwargs)
-    #print(response)
-    return response
+    def save_research_metadata(self, metadata: Dict[str, Any]) -> None:
+        """Save research metadata to a JSON file
 
-def search_advanced(
-    query: str,
-    **kwargs: Any
-) -> Dict[str, Any]:
-    client = SearchClient()
-    response = client.search_with_template(
-        query=query,
-        template_name="advanced"
-    )
-    print(response)
-    return response
+        Args:
+            metadata: The metadata to save
+        """
+        output_file = f'output/{self.research_id}/{self.research_id}_meta.json'
+        self._logger.debug(f"Saving research metadata to {output_file}")
+        try:
+            result = self._persistence_client.save_json(metadata, output_file)
+            self._logger.info("Successfully saved research metadata")
+            return result
+        except Exception as e:
+            self._logger.error(f"Failed to save research metadata: {str(e)}")
+            raise
 
-def generate_research_category_report(research_content: Dict[str, str], category: str, category_resrouces: List[Dict[str, str]]):
-    print(f'Generating summary report for category: {category}...')
-    client = LLMClient()
-    messages = [
-        {"role": "user", "content": f'''You are a pro researcher. Current research topic is:
+    def load_research_metadata(self) -> Dict[str, Any]:
+        """Load research metadata from a JSON file
+
+        Returns:
+            A dictionary containing the research metadata
+        """
+        file_path = f'output/{self.research_id}/{self.research_id}_meta.json'
+        self._logger.debug(f"Loading research metadata from {file_path}")
+        try:
+            result = self._persistence_client.load_json(file_path)
+            self._logger.info("Successfully loaded research metadata")
+            return result
+        except Exception as e:
+            self._logger.error(f"Failed to load research metadata: {str(e)}")
+            raise
+
+    def search_advanced(self, query: str, **kwargs: Any) -> Dict[str, Any]:
+        """Perform an advanced search
+
+        Args:
+            query: The search query
+            **kwargs: Additional parameters to pass to the API
+
+        Returns:
+            The search results
+        """
+        self._logger.debug(f"Executing advanced search with query: {query}")
+        try:
+            response = self._search_client.search_with_template(
+                query=query,
+                template_name="advanced"
+            )
+            self._logger.info("Successfully executed advanced search")
+            return response
+        except Exception as e:
+            self._logger.error(f"Failed to execute advanced search: {str(e)}")
+            raise
+
+    def generate_category_report(self, research_content: Dict[str, str], category: str, category_resources: List[Dict[str, str]]) -> str:
+        """Generate a report for a specific category
+
+        Args:
+            research_content: The research content
+            category: The category to generate a report for
+            category_resources: The resources for the category
+
+        Returns:
+            The generated report
+        """
+        self._logger.info(f"Generating summary report for category: {category}")
+        messages = [
+            {"role": "user", "content": f'''You are a pro researcher. Current research topic is:
 
 {research_content}
 
@@ -142,64 +228,147 @@ Follow below:
 
 Collected resources to read:
 ```
-{category_resrouces}
+{category_resources}
 ```
 
 Provide output in Markdown format.
-'''}
-    ]
-    response = client.long_completion(messages, response_format='markdown')
-    #print(response)
-    return response
+'''
+        ]
+        try:
+            result = self._llm_client.long_completion(messages, response_format='markdown')
+            self._logger.info(f"Successfully generated report for category: {category}")
+            return result
+        except Exception as e:
+            self._logger.error(f"Failed to generate category report: {str(e)}")
+            raise
 
-def generate_research_final_report(research_content: Dict[str, str], reports: List[Dict[str, str]], model: str = Config.REPORT_MODEL):
-    client = LLMClient()
-    messages = [
-        {"role": "system", "content": f'''Your Task: Based on the provided literature and materials, your goal is to compile a comprehensive and detailed investigative report. 
-The report provide extensive analysis, insights, and explanations to ensure sufficient length and depth. 
+    @staticmethod
+    def sanitize_filename(name: str) -> str:
+        """Sanitize a string to be used as a filename
 
-Instructions:
+        Args:
+            name: The string to sanitize
 
-- Always Focus on the research goal.
-- Integrate the Literature: First, you need to integrate all the content from the provided literature. Avoid deleting or simplifying the information; instead, reorganize it logically with explain content for each. 
-- Numbers and Statistics: Always leave the reference source together.
-- Develop Insights: carefully analyze the content and the research topic to develop meaningful insights. These insights should go beyond what is explicitly mentioned in the literature and uncover new perspectives or implications.
-- Do not mention numbers you don't have evidence to support or skip sections without actual numbers from literature.
+        Returns:
+            A sanitized string safe for use as a filename
+        """
+        import re
+        sanitized = re.sub(r'[^\w\s-]', '', name)
+        sanitized = re.sub(r'[-\s]+', '_', sanitized)
+        return sanitized
 
----
+    def save_search_results(self, category: str, query: str, results: Dict[str, Any]) -> Dict[str, Any]:
+        """Save search results to a JSON file
 
-Research Topic: 
-{research_content}
+        Args:
+            category: The category name
+            query: The search query
+            results: The search results to save
 
+        Returns:
+            A dictionary indicating success or error
+        """
+        sanitized_category = self.sanitize_filename(category)
+        sanitized_query = self.sanitize_filename(query)
+        output_path = f'output/{self.research_id}/{sanitized_category}'
+        output_file = f'{output_path}/{sanitized_query}.json'
 
-Collected Literatures: 
-{reports}
+        self._logger.debug(f"Saving search results to {output_file}")
+        try:
+            os.makedirs(output_path, exist_ok=True)
+            result = self._persistence_client.save_json(results, output_file)
+            self._logger.info("Successfully saved search results")
+            return result
+        except Exception as e:
+            self._logger.error(f"Failed to save search results: {str(e)}")
+            raise
 
----
-Report format:
+    def save_category_report(self, category: str, report: str) -> None:
+        """Save a category report to a JSON file
 
-- Use [{Config.REPORT_LANG}]
-- Markdown format
-- with Key highlighted using ** bold
-- Title #
-- Section ## with insights
-- Subsection ### with lengthy explaination on each section
+        Args:
+            category: The category name
+            report: The report content
+        """
+        report_json = {
+            "category": category,
+            "report": report
+        }
+        sanitized_category = self.sanitize_filename(category)
+        file_path = f'output/{self.research_id}/{sanitized_category}_report.json'
 
+        self._logger.debug(f"Saving category report to {file_path}")
+        try:
+            self._persistence_client.save_json(report_json, file_path)
+            self._logger.info(f"Successfully saved report for category: {category}")
+        except Exception as e:
+            self._logger.error(f"Failed to save category report: {str(e)}")
+            raise
 
-Provide your output in markdown format. 
+    def read_category_results(self, category: str) -> List[Dict[str, str]]:
+        """Read results for a specific category
 
-'''}
-    ]
-    response = client.chat_completion(messages, model=model, response_format='markdown')
-    #print(response)
-    return response
+        Args:
+            category: The category name
 
+        Returns:
+            A list of results for the category
+        """
+        sanitized_category = self.sanitize_filename(category)
+        category_path = f'output/{self.research_id}/{sanitized_category}'
 
+        self._logger.debug(f"Reading category results from {category_path}")
+        results = []
 
-if __name__ == '__main__':
-    # Example usage of translate_to_english
-    re = search_advanced("What impact of X platform in 2025")
-    print(re)
+        if not os.path.exists(category_path):
+            self._logger.warning(f"Category path does not exist: {category_path}")
+            return results
 
+        json_files = glob.glob(os.path.join(category_path, '*.json'))
+        for json_file in json_files:
+            try:
+                data = self._persistence_client.load_json(os.path.relpath(json_file))
+                for result in data.get('results', []):
+                    title = result.get('title', '')
+                    content = result.get('raw_content') or result.get('content', '')
+                    url = result.get('url', '')
+                    if title and content and result.get('score', 0) > 0.6:
+                        results.append({
+                            'title': title,
+                            'url': url,
+                            'content': content
+                        })
+            except Exception as e:
+                self._logger.error(f"Error processing file {json_file}: {str(e)}")
+                continue
+
+        self._logger.info(f"Successfully read {len(results)} results for category: {category}")
+        return results
+
+    def read_category_reports(self) -> List[Dict[str, str]]:
+        """Read all category reports
+
+        Returns:
+            A list of category reports
+        """
+        report_path = f'output/{self.research_id}'
+        self._logger.debug(f"Reading category reports from {report_path}")
+        reports = []
+
+        if not os.path.exists(report_path):
+            self._logger.warning(f"Report path does not exist: {report_path}")
+            return reports
+
+        json_files = glob.glob(os.path.join(report_path, '*_report.json'))
+        for json_file in json_files:
+            try:
+                data = self._persistence_client.load_json(os.path.relpath(json_file))
+                reports.append(data)
+            except Exception as e:
+                self._logger.error(f"Error processing file {json_file}: {str(e)}")
+                continue
+
+        self._logger.info(f"Successfully read {len(reports)} category reports")
+        return reports
 
     

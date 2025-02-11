@@ -1,5 +1,6 @@
 output/
 
+src/deep_research/cli/exec.py
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
