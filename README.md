@@ -31,7 +31,12 @@ A command-line python tool for conducting comprehensive research on any topic us
    pip install -r requirements.txt
    ```
 
-3. Configure environment variables:
+3. Install Setup.py:
+   ```bash
+   pip install -e .
+   ```
+
+4. Configure environment variables:
    ```bash
    cp .env.example .env
    ```
