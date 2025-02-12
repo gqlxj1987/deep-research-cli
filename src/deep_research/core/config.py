@@ -12,7 +12,7 @@ class Config:
     SMART_MODEL = os.getenv('SMART_MODEL', "deepseek/deepseek-r1")
     NORMAL_MODEL = os.getenv('NORMAL_MODEL', "deepseek/deepseek-r1-distill-llama-70b")
     LONG_MODEL = os.getenv('LONG_MODEL', "google/gemini-2.0-flash-001")
-    REPORT_MODEL = os.getenv('LONG_MODEL', "google/gemini-2.0-pro-exp-02-05:free")
+    REPORT_MODEL = os.getenv('REPORT_MODEL', "google/gemini-2.0-pro-exp-02-05:free")
 
     REPORT_LANG = os.getenv('REPORT_LANG', "Chinese")
 
