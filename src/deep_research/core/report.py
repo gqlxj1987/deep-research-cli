@@ -168,6 +168,7 @@ Provide your output in markdown format. 简体中文编写，字数需要大于 
     - Numbers and Statistics: Always leave the reference source together.
     - Develop Insights: carefully analyze the content and the research topic to develop meaningful insights. These insights should go beyond what is explicitly mentioned in the literature and uncover new perspectives or implications.
     - Do not mention numbers you don't have evidence to support or skip sections without actual numbers from literature.
+    - Use Tables or Mermaid Graphs to illustrate but only if needed.
 
     ---
 
@@ -238,11 +239,12 @@ Provide your output in markdown format. 简体中文编写，字数需要大于 
 
     - {os.getenv('REPORT_PROMPT', "")}
     - Always Focus on the research goal.
-    - Integrate the Literature: First, you need to integrate all the content from the provided literature. Avoid deleting or simplifying the information; instead, reorganize it logically with explain content for each. 
+    - Integrate the Literature: First, you need to integrate all the content from the provided literature. 
     - Numbers and Statistics: Always leave the reference source together.
-    - Comprehensive and detail, organized report
+    - Comprehensive and detail, organized structured report with logical section order, do not summarize.
     - Conclusion with deepen insights
-
+    - Use Tables or Mermaid Graphs to illustrate but if needed.
+    
     ---
 
     Research Topic: 
@@ -269,7 +271,7 @@ Provide your output in markdown format. 简体中文编写，字数需要大于 
         try:
             report_content = client.chat_completion(messages, model=model, response_format='markdown')
             model_name = self._research_helper.sanitize_filename(model)
-            file_path = f'output/{self.research_id}/{self.research_id}_{model_name}_detail_esearch.md'
+            file_path = f'output/{self.research_id}/{self.research_id}_{model_name}_detail_research.md'
             persistence_client = PersistenceClient()
             persistence_client.save_file(file_path, report_content)
             self._logger.info(f"Successfully generated and saved detailed research report to {file_path}")
