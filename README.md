@@ -130,6 +130,9 @@ TAVILY_API_KEY=
 # e. REPORT_PLAN_PROMPT, additional prompt which will hijack into Report Creation process influence the report content
 # REPORT_PROMPT=
 
+# f. NUMBER_OF_QUERIES_IN_CATEGORY, number of queries in each category, default 3
+# NUMBER_OF_QUERIES_IN_CATEGORY=3
+
 ```
 
 ## Research Cost Estimation

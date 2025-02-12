@@ -111,7 +111,8 @@ Based on below research information
 
 - {os.getenv('RESEARCH_PLAN_PROMPT', "")}
 - you will work out a comprehensive list of queries for user to collect informations on Search Engines cover everything aspect of the research goal.
-- Query need to be specific to the research topic and category to narrow the results.
+- Query need to be specific to the research topic and category to narrow the results with lengthy description and keywords.
+- Less than {os.getenv('NUMBER_OF_QUERIES_IN_CATEGORY', "3")} queries each list 
 
 ```
 {research_content}
