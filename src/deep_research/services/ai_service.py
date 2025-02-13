@@ -9,6 +9,8 @@ import json
 import json_repair
 from typing import Optional, Dict, Any
 from dotenv import load_dotenv
+from google import genai
+from google.genai import types
 
 # Load environment variables
 load_dotenv()
@@ -31,6 +33,9 @@ class LLMClient:
             self.client = openai.OpenAI(
                 api_key=self.config.api_key,
                 base_url=self.config.api_base
+            )
+            self.google_client = genai.Client(
+                api_key=self.config.api_key
             )
             self.logger.info("Successfully initialized OpenAI client")
         except ImportError:
@@ -61,54 +66,84 @@ class LLMClient:
         Returns:
             The response content as a JSON object or markdown string
         """
-        # Prepare request parameters
-        params = {
-            "model": model or self.config.normal_model,
-            "messages": messages
-        }
+        model = model or self.config.normal_model
         
-        self.logger.debug(f"Sending chat completion request with model: {params['model']}")
-            
-        try:
-            response = self.client.chat.completions.create(
-                **params,
-                **kwargs
-            )
-            self.logger.debug("Successfully received response from API")
-            content = response.choices[0].message.content
+        if model.startswith('gemini'):
+            try:
+                # Convert messages to parts.  Gemini expects 'parts' as a list of text strings or image data.
+                parts = []
+                for message in messages:
+                    if message['role'] == 'user':
+                        parts.append(types.Part.from_text(message['content'])) #User text becomes a part
+                    elif message['role'] == 'model':
+                        parts.append(types.Part.from_text(message['content'])) #Model messages need to be converted to Parts
+                    else:
+                        raise ValueError(f"Invalid role: {message['role']}. Role must be 'user' or 'model'.")
+                
+                contents=types.Content(parts=parts, role='user')
 
-            # Handle markdown format with potential token limit handling
-            if response_format == 'markdown':
-                # Check if response was truncated due to token limit
-                if response.choices[0].native_finish_reason == 'MAX_TOKENS' and 'google' in model.lower():
-                    self.logger.info("Response truncated due to token limit, continuing conversation")
-                    # Append the partial response to messages and continue the conversation
-                    messages.append({"role": "assistant", "content": content})
-                    messages.append({"role": "user", "content": "Please continue from where you left off."})                
-                    # Recursively get the rest of the response
-                    continuation = self.chat_completion(
-                        messages=messages,
-                        model=model,
-                        response_format='markdown',
-                        **kwargs
-                    )
-                    # Combine the current content with the continuation
-                    return content + continuation
+                response = self.google_client.generate_content(
+                    model=model, 
+                    contents=contents,
+                    config={
+                        'response_mime_type': 'application/json'      
+                    }
+                )
+                print(response.text)
+                repaired_json = json_repair.loads(response.text)
+                return repaired_json
+            except Exception as e:
+                self.logger.error(f"GenAI error: {str(e)}")
+                raise
+        else:
+            # Prepare request parameters
+            params = {
+            "model": model or self.config.normal_model,
+                "messages": messages
+            }
+            
+            self.logger.debug(f"Sending chat completion request with model: {params['model']}")
+                
+            try:
+                response = self.client.chat.completions.create(
+                    **params,
+                    **kwargs
+                )
+                self.logger.debug("Successfully received response from API")
+                content = response.choices[0].message.content
+
+                # Handle markdown format with potential token limit handling
+                if response_format == 'markdown':
+                    # Check if response was truncated due to token limit
+                    if response.choices[0].native_finish_reason == 'MAX_TOKENS' and 'google' in model.lower():
+                        self.logger.info("Response truncated due to token limit, continuing conversation")
+                        # Append the partial response to messages and continue the conversation
+                        messages.append({"role": "assistant", "content": content})
+                        messages.append({"role": "user", "content": "Please continue from where you left off."})                
+                        # Recursively get the rest of the response
+                        continuation = self.chat_completion(
+                            messages=messages,
+                            model=model,
+                            response_format='markdown',
+                            **kwargs
+                        )
+                        # Combine the current content with the continuation
+                        return content + continuation
+                    return content
+                
+                # Handle JSON format
+                if response_format == 'json':
+                    try:
+                        repaired_json = json_repair.loads(content)
+                        return repaired_json
+                    except Exception as e:
+                        self.logger.error(f"Failed to parse JSON response: {str(e)}")
+                        raise
+                
                 return content
-            
-            # Handle JSON format
-            if response_format == 'json':
-                try:
-                    repaired_json = json_repair.loads(content)
-                    return repaired_json
-                except Exception as e:
-                    self.logger.error(f"Failed to parse JSON response: {str(e)}")
-                    raise
-            
-            return content
-        except Exception as e:
-            self.logger.error(f"Error in chat completion: {str(e)}")
-            raise
+            except Exception as e:
+                self.logger.error(f"Error in chat completion: {str(e)}")
+                raise
 
     def smart_completion(
         self,

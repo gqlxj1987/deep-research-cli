@@ -11,8 +11,8 @@ class Config:
     """Configuration class for model settings"""
     SMART_MODEL = os.getenv('SMART_MODEL', "deepseek/deepseek-r1")
     NORMAL_MODEL = os.getenv('NORMAL_MODEL', "deepseek/deepseek-r1-distill-llama-70b")
-    LONG_MODEL = os.getenv('LONG_MODEL', "google/gemini-2.0-flash-001")
-    REPORT_MODEL = os.getenv('REPORT_MODEL', "google/gemini-2.0-pro-exp-02-05:free")
+    LONG_MODEL = os.getenv('LONG_MODEL', "gemini-2.0-flash")
+    REPORT_MODEL = os.getenv('REPORT_MODEL', "gemini-2.0-pro-exp-02-05")
 
     REPORT_LANG = os.getenv('REPORT_LANG', "Chinese")
 
@@ -24,6 +24,7 @@ class LLMConfig:
         self.smart_model = os.getenv('SMART_MODEL', Config.SMART_MODEL)
         self.normal_model = os.getenv('NORMAL_MODEL', Config.NORMAL_MODEL)
         self.long_model = os.getenv('LONG_MODEL', Config.LONG_MODEL)
+        self.google_api_key = os.getenv('GOOGLE_API_KEY')
 
         if not self.api_key:
             raise ValueError('OPENAI_KEY environment variable is not set')
