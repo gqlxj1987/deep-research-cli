@@ -35,7 +35,7 @@ class LLMClient:
                 base_url=self.config.api_base
             )
             self.google_client = genai.Client(
-                api_key=self.config.api_key
+                api_key=self.config.google_api_key
             )
             self.logger.info("Successfully initialized OpenAI client")
         except ImportError:
@@ -70,27 +70,14 @@ class LLMClient:
         
         if model.startswith('gemini'):
             try:
-                # Convert messages to parts.  Gemini expects 'parts' as a list of text strings or image data.
-                parts = []
-                for message in messages:
-                    print(message)
-                    if message['role'] == 'user':
-                        parts.append(types.Part.from_text(message['content'])) #User text becomes a part
-                    elif message['role'] == 'model':
-                        parts.append(types.Part.from_text(message['content'])) #Model messages need to be converted to Parts
-                    else:
-                        raise ValueError(f"Invalid role: {message['role']}. Role must be 'user' or 'model'.")
-                
-                contents=types.Content(parts=parts)
-
-                response = self.google_client.generate_content(
+                response = self.google_client.models.generate_content(
                     model=model, 
-                    contents=contents,
+                    contents=messages[0]['content'],
                     config={
                         'response_mime_type': 'application/json'      
                     }
                 )
-                print(response.text)
+                # print(response.text)
                 repaired_json = json_repair.loads(response.text)
                 return repaired_json
             except Exception as e:
