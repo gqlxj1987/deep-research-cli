@@ -73,6 +73,7 @@ class LLMClient:
                 # Convert messages to parts.  Gemini expects 'parts' as a list of text strings or image data.
                 parts = []
                 for message in messages:
+                    print(message)
                     if message['role'] == 'user':
                         parts.append(types.Part.from_text(message['content'])) #User text becomes a part
                     elif message['role'] == 'model':
@@ -80,7 +81,7 @@ class LLMClient:
                     else:
                         raise ValueError(f"Invalid role: {message['role']}. Role must be 'user' or 'model'.")
                 
-                contents=types.Content(parts=parts, role='user')
+                contents=types.Content(parts=parts)
 
                 response = self.google_client.generate_content(
                     model=model, 
@@ -211,7 +212,7 @@ if __name__ == '__main__':
             {"role": "user", "content": "What is Python?"}
         ]
         print("\nNormal Completion Test:")
-        response = client.chat_completion(messages)
+        response = client.long_completion(messages)
         print(response)
         
     except Exception as e:
