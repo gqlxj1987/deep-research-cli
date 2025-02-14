@@ -78,9 +78,9 @@ class LLMClient:
             content = response.choices[0].message.content
 
             # Handle markdown format with potential token limit handling
-            if response_format == 'markdown':
+            if response_format == 'markdown' and 'google' in model.lower():
                 # Check if response was truncated due to token limit
-                if response.choices[0].native_finish_reason == 'MAX_TOKENS' and 'google' in model.lower():
+                if response.choices[0].native_finish_reason == 'MAX_TOKENS' :
                     self.logger.info("Response truncated due to token limit, continuing conversation")
                     # Append the partial response to messages and continue the conversation
                     messages.append({"role": "assistant", "content": content})
