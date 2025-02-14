@@ -59,7 +59,7 @@ class Report:
             raise ValueError(error_msg)
 
 
-    def generate_wechat_article(self, model: str = Config.REPORT_MODEL) -> str:
+    def generate_wechat_article(self, model: str = Config.SMART_MODEL) -> str:
         """Generate a WeChat article based on research data
 
         This method generates a user-friendly article suitable for WeChat platform,
