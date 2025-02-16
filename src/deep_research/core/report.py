@@ -84,14 +84,16 @@ class Report:
 
         client = LLMClient()
         messages = [
-                {"role": "system", "content": f'''你的任务是根据课题和收集到的资料，编写一篇温柔的微信公众号文章。 
+                {"role": "system", "content": f'''你的任务是根据课题和收集到的资料，编写一篇内容详实的微信公众号文章。 
 
 要求:
 
 - {os.getenv('REPORT_WECHAT_PROMPT', "")}
 - {os.getenv('REPORT_PROMPT', "")}
+- 要有非常明确的态度和观点。
 - 要有一个吸引眼球但不要太肤浅的标题
-- 文本要具有亲和力，每个段落要有感情，要有温度，要有代入感，要有深度，并添加你非常详细的解释涉及到的原理或者知识的背景。
+- 文本要具有亲和力，每个段落要有感情，要有深度，并添加你非常详细的解释涉及到的原理或者知识的背景。
+- 不要虚构任何案例和内容，遵照文献里的内容进行交叉比对，思考深度含义。需要非常详细的观点称述，逻辑过程推演和讲解。
 - 不要有太多奇怪的比喻。
 - 内容有情绪，有代入感，文字通俗，偶尔使用 emoji。
 - 文章最后要把所有相关的科学的依据罗列出来。
@@ -116,7 +118,7 @@ class Report:
 - Section ## with insights
 - Subsection ### with lengthy explaination on each section
 
-Provide your output in markdown format. 简体中文编写，字数需要大于 2000 字。
+Provide your output in markdown format. 简体中文编写。
 
         '''}
             ]
